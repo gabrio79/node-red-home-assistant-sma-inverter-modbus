@@ -1,1 +1,623 @@
-[{"id":"16f05225.ffb33e","type":"tab","label":"SMA","disabled":false,"info":""},{"id":"7bbb4451.f83f3c","type":"comment","z":"16f05225.ffb33e","name":"fonte dati","info":"https://github.com/rlindner/node-red-contrib-sma-webconnect","x":280,"y":60,"wires":[]},{"id":"c41017d7.0b6078","type":"modbus-read","z":"16f05225.ffb33e","name":"Inverter 11","topic":"","showStatusActivities":false,"logIOActivities":false,"showErrors":false,"unitid":"3","dataType":"InputRegister","adr":"30775","quantity":"10","rate":"5","rateUnit":"s","delayOnStart":false,"startDelayTime":"","server":"66f02a73.ff6784","useIOFile":false,"ioFile":"","useIOForPayload":false,"emptyMsgOnFail":false,"x":100,"y":180,"wires":[["108d935f.3cb0dd"],[]]},{"id":"108d935f.3cb0dd","type":"function","z":"16f05225.ffb33e","name":"Estrai Potenza","func":"var rawData = new ArrayBuffer(4);\nvar intView = new Uint16Array(rawData);\n\n\nintView[0] =  //low\nintView[1] = msg.payload[0]; //high\n\nmsg.payload = msg.payload[1];\nmsg.topic = \"W\";\n\nnode.status({fill:\"blue\",shape:\"ring\",text:msg.topic + \":\" + msg.payload});    \n\nreturn msg;","outputs":1,"noerr":0,"x":300,"y":180,"wires":[["888e3f9b.852ba"]]},{"id":"7092cb48.adb844","type":"modbus-read","z":"16f05225.ffb33e","name":"Inverter 12","topic":"","showStatusActivities":false,"logIOActivities":false,"showErrors":false,"unitid":"3","dataType":"HoldingRegister","adr":"30775","quantity":"10","rate":"5","rateUnit":"s","delayOnStart":false,"startDelayTime":"","server":"7ce6cf0.948ad3","useIOFile":false,"ioFile":"","useIOForPayload":false,"emptyMsgOnFail":false,"x":100,"y":260,"wires":[["359a0aab.d52b46"],[]]},{"id":"359a0aab.d52b46","type":"function","z":"16f05225.ffb33e","name":"Estrai Potenza","func":"var rawData = new ArrayBuffer(4);\nvar intView = new Uint16Array(rawData);\n\n\nintView[0] =  //low\nintView[1] = msg.payload[0]; //high\n\nmsg.payload = msg.payload[1];\nmsg.topic = \"W\";\n\nnode.status({fill:\"blue\",shape:\"ring\",text:msg.topic + \":\" + msg.payload});    \n\nreturn msg;","outputs":1,"noerr":0,"x":300,"y":260,"wires":[["5d741966.67b868"]]},{"id":"888e3f9b.852ba","type":"change","z":"16f05225.ffb33e","name":"","rules":[{"t":"set","p":"var1","pt":"flow","to":"payload","tot":"msg"}],"action":"","property":"","from":"","to":"","reg":false,"x":510,"y":180,"wires":[["a5687431.52d6d8"]]},{"id":"a5687431.52d6d8","type":"change","z":"16f05225.ffb33e","name":"sum","rules":[{"t":"set","p":"payload","pt":"msg","to":"$flowContext('var1')+$flowContext('var2')","tot":"jsonata"}],"action":"","property":"","from":"","to":"","reg":false,"x":670,"y":220,"wires":[["7f5104d2.37e44c"]]},{"id":"5d741966.67b868","type":"change","z":"16f05225.ffb33e","name":"","rules":[{"t":"set","p":"var2","pt":"flow","to":"payload","tot":"msg"}],"action":"","property":"","from":"","to":"","reg":false,"x":510,"y":260,"wires":[["a5687431.52d6d8"]]},{"id":"7f5104d2.37e44c","type":"ha-entity","z":"16f05225.ffb33e","name":"Produzione Fotovoltaico","server":"33548a2.5992e76","version":1,"debugenabled":false,"outputs":1,"entityType":"sensor","config":[{"property":"name","value":"Produzione Fotovoltaico"},{"property":"device_class","value":""},{"property":"icon","value":"mdi:gauge"},{"property":"unit_of_measurement","value":"W"}],"state":"payload","stateType":"msg","attributes":[],"resend":true,"outputLocation":"","outputLocationType":"none","inputOverride":"allow","x":890,"y":220,"wires":[[]]},{"id":"66f02a73.ff6784","type":"modbus-client","z":"","name":"Inverter 11","clienttype":"tcp","bufferCommands":true,"stateLogEnabled":false,"queueLogEnabled":false,"tcpHost":"192.168.50.11","tcpPort":"502","tcpType":"DEFAULT","serialPort":"/dev/ttyUSB","serialType":"RTU-BUFFERD","serialBaudrate":"9600","serialDatabits":"8","serialStopbits":"1","serialParity":"none","serialConnectionDelay":"100","unit_id":"3","commandDelay":"1","clientTimeout":"1000","reconnectOnTimeout":true,"reconnectTimeout":"2000","parallelUnitIdsAllowed":true},{"id":"7ce6cf0.948ad3","type":"modbus-client","z":"","name":"Inverter 12","clienttype":"tcp","bufferCommands":true,"stateLogEnabled":false,"queueLogEnabled":false,"tcpHost":"192.168.50.12","tcpPort":"502","tcpType":"DEFAULT","serialPort":"/dev/ttyUSB","serialType":"RTU-BUFFERD","serialBaudrate":"9600","serialDatabits":"8","serialStopbits":"1","serialParity":"none","serialConnectionDelay":"100","unit_id":3,"commandDelay":1,"clientTimeout":1500,"reconnectOnTimeout":true,"reconnectTimeout":2000,"parallelUnitIdsAllowed":true},{"id":"33548a2.5992e76","type":"server","z":"","name":"Home Assistant","legacy":false,"addon":true,"rejectUnauthorizedCerts":true,"ha_boolean":"y|yes|true|on|home|open","connectionDelay":true,"cacheJson":true}]
+[
+    {
+        "id": "ee4b78d6.df65e8",
+        "type": "tab",
+        "label": "SMA",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "1749fcb0.2a171b",
+        "type": "comment",
+        "z": "ee4b78d6.df65e8",
+        "name": "fonte dati",
+        "info": "https://github.com/rlindner/node-red-contrib-sma-webconnect",
+        "x": 280,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "c6858c7a.7b8de",
+        "type": "modbus-read",
+        "z": "ee4b78d6.df65e8",
+        "name": "Inverter 11 Potenza",
+        "topic": "",
+        "showStatusActivities": false,
+        "logIOActivities": false,
+        "showErrors": false,
+        "unitid": "3",
+        "dataType": "InputRegister",
+        "adr": "30775",
+        "quantity": "10",
+        "rate": "5",
+        "rateUnit": "s",
+        "delayOnStart": false,
+        "startDelayTime": "",
+        "server": "a2edbd96.be9be8",
+        "useIOFile": false,
+        "ioFile": "",
+        "useIOForPayload": false,
+        "emptyMsgOnFail": false,
+        "x": 130,
+        "y": 180,
+        "wires": [
+            [
+                "84fa735.4713b1"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "84fa735.4713b1",
+        "type": "function",
+        "z": "ee4b78d6.df65e8",
+        "name": "Estrai Potenza",
+        "func": "var rawData = new ArrayBuffer(4);\nvar intView = new Uint16Array(rawData);\n\n\nintView[0] =  //low\nintView[1] = msg.payload[0]; //high\n\nmsg.payload = msg.payload[1];\nmsg.topic = \"W\";\n\nnode.status({fill:\"blue\",shape:\"ring\",text:msg.topic + \":\" + msg.payload});    \n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 380,
+        "y": 180,
+        "wires": [
+            [
+                "a53a966b.5c3fb",
+                "6ea1377c.3bd29"
+            ]
+        ]
+    },
+    {
+        "id": "3bac58b.57282a8",
+        "type": "modbus-read",
+        "z": "ee4b78d6.df65e8",
+        "name": "Inverter 12 Potenza",
+        "topic": "",
+        "showStatusActivities": false,
+        "logIOActivities": false,
+        "showErrors": false,
+        "unitid": "3",
+        "dataType": "HoldingRegister",
+        "adr": "30775",
+        "quantity": "10",
+        "rate": "5",
+        "rateUnit": "s",
+        "delayOnStart": false,
+        "startDelayTime": "",
+        "server": "d879b048.e04b4",
+        "useIOFile": false,
+        "ioFile": "",
+        "useIOForPayload": false,
+        "emptyMsgOnFail": false,
+        "x": 130,
+        "y": 260,
+        "wires": [
+            [
+                "62a17120.8cdbc"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "62a17120.8cdbc",
+        "type": "function",
+        "z": "ee4b78d6.df65e8",
+        "name": "Estrai Potenza",
+        "func": "var rawData = new ArrayBuffer(4);\nvar intView = new Uint16Array(rawData);\n\n\nintView[0] =  //low\nintView[1] = msg.payload[0]; //high\n\nmsg.payload = msg.payload[1];\nmsg.topic = \"W\";\n\nnode.status({fill:\"blue\",shape:\"ring\",text:msg.topic + \":\" + msg.payload});    \n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 380,
+        "y": 260,
+        "wires": [
+            [
+                "f6773de7.2e511",
+                "9dcc63ab.f9a1b8"
+            ]
+        ]
+    },
+    {
+        "id": "a53a966b.5c3fb",
+        "type": "change",
+        "z": "ee4b78d6.df65e8",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "var1",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 590,
+        "y": 180,
+        "wires": [
+            [
+                "4f2c1a61.03c0d4"
+            ]
+        ]
+    },
+    {
+        "id": "f6773de7.2e511",
+        "type": "change",
+        "z": "ee4b78d6.df65e8",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "var2",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 590,
+        "y": 260,
+        "wires": [
+            [
+                "4f2c1a61.03c0d4"
+            ]
+        ]
+    },
+    {
+        "id": "2f7bb20d.5c0a4e",
+        "type": "ha-entity",
+        "z": "ee4b78d6.df65e8",
+        "name": "Produzione Fotovoltaico",
+        "server": "eec2f33e.3eb508",
+        "version": 1,
+        "debugenabled": false,
+        "outputs": 1,
+        "entityType": "sensor",
+        "config": [
+            {
+                "property": "name",
+                "value": "Produzione Fotovoltaico"
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "icon",
+                "value": "mdi:gauge"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": "W"
+            }
+        ],
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [],
+        "resend": true,
+        "outputLocation": "",
+        "outputLocationType": "none",
+        "inputOverride": "allow",
+        "outputOnStateChange": false,
+        "outputPayload": "",
+        "outputPayloadType": "str",
+        "x": 950,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9dcc63ab.f9a1b8",
+        "type": "ha-entity",
+        "z": "ee4b78d6.df65e8",
+        "name": "Produzione Inverter 2",
+        "server": "eec2f33e.3eb508",
+        "version": 1,
+        "debugenabled": false,
+        "outputs": 1,
+        "entityType": "sensor",
+        "config": [
+            {
+                "property": "name",
+                "value": "Produzione Inverter 2"
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "icon",
+                "value": "mdi:gauge"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": "W"
+            }
+        ],
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [],
+        "resend": true,
+        "outputLocation": "",
+        "outputLocationType": "none",
+        "inputOverride": "allow",
+        "x": 620,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6ea1377c.3bd29",
+        "type": "ha-entity",
+        "z": "ee4b78d6.df65e8",
+        "name": "Produzione Inverter 1",
+        "server": "eec2f33e.3eb508",
+        "version": 1,
+        "debugenabled": false,
+        "outputs": 1,
+        "entityType": "sensor",
+        "config": [
+            {
+                "property": "name",
+                "value": "Produzione Inverter 1"
+            },
+            {
+                "property": "device_class",
+                "value": ""
+            },
+            {
+                "property": "icon",
+                "value": "mdi:gauge"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": "W"
+            }
+        ],
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [],
+        "resend": true,
+        "outputLocation": "",
+        "outputLocationType": "none",
+        "inputOverride": "allow",
+        "x": 620,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "717dc5df.c3384c",
+        "type": "function",
+        "z": "ee4b78d6.df65e8",
+        "name": "Estrai Energia",
+        "func": "var rawData = new ArrayBuffer(4);\nvar intView = new Uint16Array(rawData);\n\n\nintView[0] =  //low\nintView[1] = msg.payload[0]; //high\n\nmsg.payload = msg.payload[1];\nmsg.topic = \"kWh\";\n\nnode.status({fill:\"blue\",shape:\"ring\",text:msg.topic + \":\" + msg.payload});    \n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 460,
+        "wires": [
+            [
+                "fae6470e.cdb148"
+            ]
+        ]
+    },
+    {
+        "id": "cfff7db.c53f98",
+        "type": "function",
+        "z": "ee4b78d6.df65e8",
+        "name": "Estrai Energia",
+        "func": "var rawData = new ArrayBuffer(4);\nvar intView = new Uint16Array(rawData);\n\n\nintView[0] =  //low\nintView[1] = msg.payload[0]; //high\n\nmsg.payload = msg.payload[1];\nmsg.topic = \"kWh\";\n\nnode.status({fill:\"blue\",shape:\"ring\",text:msg.topic + \":\" + msg.payload});    \n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 380,
+        "y": 540,
+        "wires": [
+            [
+                "65f12a46.24cfa4"
+            ]
+        ]
+    },
+    {
+        "id": "fae6470e.cdb148",
+        "type": "change",
+        "z": "ee4b78d6.df65e8",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "var_e1",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 460,
+        "wires": [
+            [
+                "bdd22e97.d9f8b"
+            ]
+        ]
+    },
+    {
+        "id": "bdd22e97.d9f8b",
+        "type": "change",
+        "z": "ee4b78d6.df65e8",
+        "name": "sum",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$flowContext('var_e1')+$flowContext('var_e2')",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 750,
+        "y": 500,
+        "wires": [
+            [
+                "aca5b049.5a87d"
+            ]
+        ]
+    },
+    {
+        "id": "65f12a46.24cfa4",
+        "type": "change",
+        "z": "ee4b78d6.df65e8",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "var_e2",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 540,
+        "wires": [
+            [
+                "bdd22e97.d9f8b"
+            ]
+        ]
+    },
+    {
+        "id": "18743483.f3a09b",
+        "type": "modbus-read",
+        "z": "ee4b78d6.df65e8",
+        "name": "Inverter 11 Eneriga",
+        "topic": "",
+        "showStatusActivities": false,
+        "logIOActivities": false,
+        "showErrors": false,
+        "unitid": "3",
+        "dataType": "InputRegister",
+        "adr": "30531",
+        "quantity": "10",
+        "rate": "5",
+        "rateUnit": "s",
+        "delayOnStart": false,
+        "startDelayTime": "",
+        "server": "a2edbd96.be9be8",
+        "useIOFile": false,
+        "ioFile": "",
+        "useIOForPayload": false,
+        "emptyMsgOnFail": false,
+        "x": 130,
+        "y": 460,
+        "wires": [
+            [
+                "717dc5df.c3384c"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "babd38b6.d69c78",
+        "type": "modbus-read",
+        "z": "ee4b78d6.df65e8",
+        "name": "Inverter 12 Energia",
+        "topic": "",
+        "showStatusActivities": false,
+        "logIOActivities": false,
+        "showErrors": false,
+        "unitid": "3",
+        "dataType": "HoldingRegister",
+        "adr": "30531",
+        "quantity": "10",
+        "rate": "5",
+        "rateUnit": "s",
+        "delayOnStart": false,
+        "startDelayTime": "",
+        "server": "d879b048.e04b4",
+        "useIOFile": false,
+        "ioFile": "",
+        "useIOForPayload": false,
+        "emptyMsgOnFail": false,
+        "x": 130,
+        "y": 540,
+        "wires": [
+            [
+                "cfff7db.c53f98"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "aca5b049.5a87d",
+        "type": "ha-entity",
+        "z": "ee4b78d6.df65e8",
+        "name": "Enegia Fotovoltaico",
+        "server": "eec2f33e.3eb508",
+        "version": 1,
+        "debugenabled": false,
+        "outputs": 1,
+        "entityType": "sensor",
+        "config": [
+            {
+                "property": "name",
+                "value": "Energia Fotovoltaico"
+            },
+            {
+                "property": "device_class",
+                "value": "energy"
+            },
+            {
+                "property": "icon",
+                "value": "mdi:counter"
+            },
+            {
+                "property": "unit_of_measurement",
+                "value": "kWh"
+            }
+        ],
+        "state": "payload",
+        "stateType": "msg",
+        "attributes": [
+            {
+                "property": "state_class",
+                "value": "measurement",
+                "valueType": "str"
+            },
+            {
+                "property": "last_reset",
+                "value": "1970-01-01T00:00:00+00:00",
+                "valueType": "str"
+            }
+        ],
+        "resend": true,
+        "outputLocation": "",
+        "outputLocationType": "none",
+        "inputOverride": "allow",
+        "outputOnStateChange": false,
+        "outputPayload": "",
+        "outputPayloadType": "str",
+        "x": 960,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4f2c1a61.03c0d4",
+        "type": "change",
+        "z": "ee4b78d6.df65e8",
+        "name": "sum",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$flowContext('var1')+$flowContext('var2')",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 750,
+        "y": 220,
+        "wires": [
+            [
+                "2f7bb20d.5c0a4e"
+            ]
+        ]
+    },
+    {
+        "id": "a2edbd96.be9be8",
+        "type": "modbus-client",
+        "name": "Inverter 11",
+        "clienttype": "tcp",
+        "bufferCommands": true,
+        "stateLogEnabled": false,
+        "queueLogEnabled": false,
+        "tcpHost": "192.168.50.11",
+        "tcpPort": "502",
+        "tcpType": "DEFAULT",
+        "serialPort": "/dev/ttyUSB",
+        "serialType": "RTU-BUFFERD",
+        "serialBaudrate": "9600",
+        "serialDatabits": "8",
+        "serialStopbits": "1",
+        "serialParity": "none",
+        "serialConnectionDelay": "100",
+        "unit_id": 3,
+        "commandDelay": 1,
+        "clientTimeout": 1000,
+        "reconnectOnTimeout": true,
+        "reconnectTimeout": 2000,
+        "parallelUnitIdsAllowed": true
+    },
+    {
+        "id": "d879b048.e04b4",
+        "type": "modbus-client",
+        "name": "Inverter 12",
+        "clienttype": "tcp",
+        "bufferCommands": true,
+        "stateLogEnabled": false,
+        "queueLogEnabled": false,
+        "tcpHost": "192.168.50.12",
+        "tcpPort": "502",
+        "tcpType": "DEFAULT",
+        "serialPort": "/dev/ttyUSB",
+        "serialType": "RTU-BUFFERD",
+        "serialBaudrate": "9600",
+        "serialDatabits": "8",
+        "serialStopbits": "1",
+        "serialParity": "none",
+        "serialConnectionDelay": "100",
+        "unit_id": 3,
+        "commandDelay": 1,
+        "clientTimeout": 1500,
+        "reconnectOnTimeout": true,
+        "reconnectTimeout": 2000,
+        "parallelUnitIdsAllowed": true
+    },
+    {
+        "id": "eec2f33e.3eb508",
+        "type": "server",
+        "name": "Home Assistant",
+        "version": 1,
+        "legacy": false,
+        "addon": true,
+        "rejectUnauthorizedCerts": true,
+        "ha_boolean": "y|yes|true|on|home|open",
+        "connectionDelay": true,
+        "cacheJson": true
+    }
+]
